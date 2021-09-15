@@ -72,10 +72,29 @@ module.exports = {
             .catch(error =>{
                 console.log(error);
             })
+    },
+    readSingle: (req, res) => {
+        let id = req.params.id;
+        Course.findById({_id: id}, (err, result) => {
+            if (err) assert.deepStrictEqual(null, err);
 
 
 
+            axios.get(result.blog_link)
+                .then(response => {
+                    const $ = cheerio.load(response.data);
+                    $('article .jsx-4148784527').each((i, elem) => {
+                        let data  = {
+                            blog_img : result.blog_img,
+                            blog_article : $(elem).find('p').text()
+                        };
+
+                        res.json(data);
+                    })
+
+                });
 
 
+        })
     }
 };
