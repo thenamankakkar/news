@@ -41,7 +41,7 @@ app.use('/', courseRoute);
 
 /*cron job*/
 var CronJob = require('cron').CronJob;
-var job = new CronJob('00 03 08 * * *', function() {
+var job = new CronJob('07 08 * * *', function() {
     data = [];
     blog_img_data = [];
     blog_link=[];
