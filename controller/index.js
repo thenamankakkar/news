@@ -15,26 +15,28 @@ const databaseName = "news";
 module.exports = {
     create: (req, res) => {
         // add new content to db
-        data = [];
-        blog_img_data = [];
+       const data = [];
+        const blog_img_data = [];
         blog_link=[];
         blog_link_info=[];
 
         axios.get(url)
             .then(response => {
                 const $ = cheerio.load(response.data);
-                $('.jsx-3278050665 .blog_title').each((i, elem) => {
+                let c = $('figure').attr('class')
+                $("."+c+ ".blog_title").each((i, elem) => {
                     data.push({
                         blog_title: $(elem).find('h4').text(),
                     })
+                    console.log("first data",data)
                 })
 
-                $('.jsx-3278050665 .blog_img').each((i, elem) => {
+                $("."+c+ ".blog_img").each((i, elem) => {
                     blog_img_data.push({
                         blog_img: $(elem).find('img').attr('data-src')
                     })
                 })
-                $('.jsx-3278050665 .blog_list_row').each((i, elem) => {
+                $("."+c+ ".blog_list_row").each((i, elem) => {
                     blog_link.push({
                         blog_link: $(elem).find('a').attr('href')
                     })
@@ -54,7 +56,7 @@ module.exports = {
                     console.log("Connection established - All well");
                     const db = client.db(databaseName);
                     const movies = db.collection('movies')
-                    movies.insertMany(data).then(result => {
+                    movies.insert(data).then(result => {
                         res.status(200).json({code: 200, message: "Successfully saved"});
                         })
                         .catch(error => console.error(error))
@@ -62,16 +64,21 @@ module.exports = {
 
 
 
-               /* let course = new Course(data);
+                let course = new Course(data);
                 course.save().then(result => {
                     res.status(200).json({code: 200, message: "Successfully saved"});
                 }).catch(err => {
                     res.status(200).json({code: 500, message: err});
-                });*/
+                });
             })
             .catch(error =>{
                 console.log(error);
             })
+
+
+
+
+
     },
     readSingle: (req, res) => {
         let id = req.params.id;
@@ -83,11 +90,14 @@ module.exports = {
             axios.get(result.blog_link)
                 .then(response => {
                     const $ = cheerio.load(response.data);
-                    $('article .jsx-4148784527').each((i, elem) => {
+                    let c = $('h1').attr('class')
+                    c = c.replace(/ .*/,'');
+                    $('article' + "."+c).each((i, elem) => {
                         let data  = {
                             blog_img : result.blog_img,
                             blog_article : $(elem).find('p').text()
                         };
+                        console.log(data)
 
                         res.json(data);
                     })
