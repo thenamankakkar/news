@@ -49,22 +49,25 @@ module.exports = {
                     element.date = datetime.toISOString().slice(0,10)
                 })
                 /*saving data array to DB here*/
-                MongoClient.connect(uri, { useNewUrlParser: true }, (error, client) => {
+/*                MongoClient.connect(uri, { useNewUrlParser: true }, (error, client) => {
                     if (error) {
                         return console.log("Connection failed for some reason");
                     }
                     console.log("Connection established - All well");
                     const db = client.db(databaseName);
                     const movies = db.collection('movies')
-                    movies.insert(data).then(result => {
+                    movies.insertMany({
+
+                        array : data
+                    }).then(result => {
                         res.status(200).json({code: 200, message: "Successfully saved"});
                         })
                         .catch(error => console.error(error))
-                });
+                });*/
 
 
 
-                let course = new Course(data);
+                let course = new Course({date: new Date(),array:data});
                 course.save().then(result => {
                     res.status(200).json({code: 200, message: "Successfully saved"});
                 }).catch(err => {
@@ -74,20 +77,10 @@ module.exports = {
             .catch(error =>{
                 console.log(error);
             })
-
-
-
-
-
     },
     readSingle: (req, res) => {
-        let id = req.params.id;
-        Course.findById({_id: id}, (err, result) => {
-            if (err) assert.deepStrictEqual(null, err);
-
-
-
-            axios.get(result.blog_link)
+        let link = req.params.blog_link;
+            axios.get(link)
                 .then(response => {
                     const $ = cheerio.load(response.data);
                     let c = $('h1').attr('class')
@@ -105,6 +98,23 @@ module.exports = {
                 });
 
 
-        })
+
+    },
+    readAll: (req, res) => {
+
+            Course.find((err, result) => {
+                if (err) assert.deepStrictEqual(null, err);
+                res.json(result);
+            })
+    },
+    readDate: (req, res) => {
+        let date = req.params.date;
+            Course.find({ "date": {
+                    "$gt": new Date(date)
+                }},(err, result) => {
+                if (err) assert.deepStrictEqual(null, err);
+                console.log(result)
+                res.json(result);
+            })
     }
 };
