@@ -41,7 +41,7 @@ app.use('/', courseRoute);
 
 /*cron job*/
 var CronJob = require('cron').CronJob;
-var job = new CronJob('00 05 07 * * *', function() {
+var job = new CronJob('00 58 10 * * *', function() {
     data = [];
     blog_img_data = [];
     blog_link=[];
@@ -82,6 +82,7 @@ var job = new CronJob('00 05 07 * * *', function() {
                 console.log("Connection established - All well");
                 const db = client.db(databaseName);
                 const movies = db.collection('movies')
+                movies.drop();
                 movies.insertMany(data).then(result => {
                     res.status(200).json({code: 200, message: "Successfully saved"});
                 })
