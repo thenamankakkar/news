@@ -9,8 +9,6 @@ const courseRoute = require('./route');
 
 
 /*imports for cron job onlie*/
-
-
 const axios = require('axios');
 const cheerio = require('cheerio');
 const url = "https://www.news18.com/movies/";
@@ -41,61 +39,17 @@ app.use('/', courseRoute);
 
 /*cron job*/
 var CronJob = require('cron').CronJob;
-var job = new CronJob('00 58 10 * * *', function() {
-    data = [];
-    blog_img_data = [];
-    blog_link=[];
-    blog_link_info=[];
-
-    axios.get(url)
-        .then(response => {
-            const $ = cheerio.load(response.data);
-            let c = $('figure').attr('class')
-            $("."+c+ ".blog_title").each((i, elem) => {
-                data.push({
-                    blog_title: $(elem).find('h4').text(),
-                })
-            })
-
-            $("."+c+ ".blog_img").each((i, elem) => {
-                blog_img_data.push({
-                    blog_img: $(elem).find('img').attr('data-src')
-                })
-            })
-            $("."+c+ ".blog_list_row").each((i, elem) => {
-                blog_link.push({
-                    blog_link: $(elem).find('a').attr('href')
-                })
-            })
-
-            var datetime = new Date();
-            data.forEach((element ,index,array)=>{
-                element.blog_img = blog_img_data[index].blog_img
-                element.blog_link = blog_link[index].blog_link
-                element.date = datetime.toISOString().slice(0,10)
-            })
-            /*saving data array to DB here*/
-            MongoClient.connect(uri, { useNewUrlParser: true }, (error, client) => {
-                if (error) {
-                    return console.log("Connection failed for some reason");
-                }
-                console.log("Connection established - All well");
-                const db = client.db(databaseName);
-                const movies = db.collection('movies')
-                movies.drop();
-                movies.insertMany(data).then(result => {
-                    res.status(200).json({code: 200, message: "Successfully saved"});
-                })
-                    .catch(error => console.error(error))
-            });
-
+var job = new CronJob('00 00 07 * * *', function() {
+    axios.post('http://localhost:4600/course')
+        .then(res => {
+            console.log("data hitted")
         })
-        .catch(error =>{
-            console.log(error);
-        })
-    console.log('cron job is running');
+        .catch(err => {
+            console.log('Error: ', err.message);
+        });
 }, null, true, 'Asia/Kolkata');
 job.start();
+const https = require('https');
 
 app.listen(PORT, () => {
     console.log(`server is running in http://localhost:${PORT}`);

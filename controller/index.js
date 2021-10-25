@@ -28,7 +28,6 @@ module.exports = {
                     data.push({
                         blog_title: $(elem).find('h4').text(),
                     })
-                    console.log("first data",data)
                 })
 
                 $("."+c+ ".blog_img").each((i, elem) => {
@@ -49,7 +48,7 @@ module.exports = {
                     element.date = datetime.toISOString().slice(0,10)
                 })
                 /*saving data array to DB here*/
-/*                MongoClient.connect(uri, { useNewUrlParser: true }, (error, client) => {
+                /*MongoClient.connect(uri, { useNewUrlParser: true }, (error, client) => {
                     if (error) {
                         return console.log("Connection failed for some reason");
                     }
@@ -79,8 +78,10 @@ module.exports = {
             })
     },
     readSingle: (req, res) => {
-        let link = req.params.blog_link;
-            axios.get(link)
+        //let link = req.params.blog_link;
+        console.log("this is link",link)
+        link = "https://www.news18.com/photogallery/movies/sonal-chauhan-makes-heads-turn-in-sequinned-crimson-saree-see-her-sexy-pictures-in-ethnic-wear-4362863.html"
+            axios.get("/course/blog_link")
                 .then(response => {
                     const $ = cheerio.load(response.data);
                     let c = $('h1').attr('class')
@@ -90,7 +91,7 @@ module.exports = {
                             blog_img : result.blog_img,
                             blog_article : $(elem).find('p').text()
                         };
-                        console.log(data)
+                        console.log("read single data",data)
 
                         res.json(data);
                     })
